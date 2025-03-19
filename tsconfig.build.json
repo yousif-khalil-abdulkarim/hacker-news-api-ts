@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "sourceMap": true,
+        "declaration": true
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules/*", "vite.config.ts", "**/*.test.ts"]
+}
