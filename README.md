@@ -1,9 +1,9 @@
-# hacker-news-api-ts
+# hn-news-api-ts
 
 ### Installation
 
 ```
-npm install hacker-news-api-ts
+npm install hn-news-api-ts
 ```
 
 ### Description
@@ -11,7 +11,7 @@ npm install hacker-news-api-ts
 A TypeScript-based Hacker News client designed to simplify and streamline the process of fetching related data.
 
 ```ts
-import { createHnApi } from "hacker-news-api-ts";
+import { createHnApi } from "hn-news-api-ts";
 
 const client = createHnApi();
 ```
@@ -29,7 +29,7 @@ const client = createHnApi();
 Here is the default settings.00,
 
 ```ts
-import { createHnApi, TTLCache } from "hacker-news-api-ts";
+import { createHnApi, TTLCache } from "hn-news-api-ts";
 
 const client = createHnApi({
     cache: new TTLCache(2_000), // in milliseconds
@@ -45,7 +45,7 @@ const client = createHnApi({
 All of the following methods return `List` class instance.
 
 ```ts
-import { createHnApi } from "hacker-news-api-ts";
+import { createHnApi } from "hn-news-api-ts";
 
 const client = createHnApi();
 
@@ -69,7 +69,7 @@ const changedUsers = client.changedUsers();
 The `List` class instance can be used in the following way.
 
 ```ts
-import { createHnApi } from "hacker-news-api-ts";
+import { createHnApi } from "hn-news-api-ts";
 
 const client = createHnApi();
 
@@ -103,7 +103,7 @@ console.log(
 All of the following method return `ListElement` class instance.
 
 ```ts
-import { createHnApi } from "hacker-news-api-ts";
+import { createHnApi } from "hn-news-api-ts";
 
 const client = createHnApi();
 
@@ -115,7 +115,7 @@ const item = topStories.getItem(0);
 The `ListElement` class instance can be used in the following way.
 
 ```ts
-import { createHnApi } from "hacker-news-api-ts";
+import { createHnApi } from "hn-news-api-ts";
 
 const client = createHnApi();
 
@@ -141,7 +141,7 @@ console.log(await item.map((item) => item.type).fetch());
 
 Fetching nested data.
 ```ts
-import { createHnApi } from "hacker-news-api-ts";
+import { createHnApi } from "hn-news-api-ts";
 
 const client = createHnApi();
 
