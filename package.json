@@ -19,8 +19,6 @@
         "Typescript"
     ],
     "scripts": {
-        "test": "npx vitest run",
-        "test:watch": "npm run test -- watch",
         "check": "npx tsc --project \"./tsconfig.json\"",
         "lint": "npx eslint \"**/*.{js,jsx,ts,tsx}\"",
         "lint:fix": "npx eslint \"**/*.{js,jsx,ts,tsx}\" --fix",
@@ -35,7 +33,6 @@
         "@changesets/cli": "^2.28.1",
         "@typescript-eslint/eslint-plugin": "^8.26.1",
         "@typescript-eslint/parser": "^8.26.1",
-        "@vitest/eslint-plugin": "^1.1.38",
         "eslint": "^8.57.1",
         "eslint-config-prettier": "^10.1.1",
         "eslint-plugin-no-relative-import-paths": "^1.6.1",
@@ -43,14 +40,12 @@
         "eslint-plugin-prettier": "^5.2.3",
         "eslint-plugin-tsdoc": "^0.4.0",
         "eslint-plugin-typescript-enum": "^2.1.0",
-        "eslint-plugin-vitest": "^0.5.4",
         "publint": "^0.3.9",
         "rimraf": "^6.0.1",
         "tsc-alias": "^1.8.11",
         "typedoc": "^0.28.0",
         "typescript": "^5.8.2",
-        "vite-tsconfig-paths": "^5.1.4",
-        "vitest": "^3.0.9"
+        "vite-tsconfig-paths": "^5.1.4"
     },
     "dependencies": {
         "zod": "^3.24.2"
