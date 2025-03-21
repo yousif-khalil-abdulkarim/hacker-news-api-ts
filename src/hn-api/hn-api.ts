@@ -101,41 +101,6 @@ export class AsyncBatchIterable<TElement, TId>
 /**
  * @internal
  */
-export class AsyncFilterIterable<TElement, TId> implements AsyncIterable<TId> {
-    constructor(
-        private readonly fetchIds: () => Promise<TId[]>,
-        private readonly itemFactory: (id: TId) => IListElement<TElement, TId>,
-        private readonly settings: ListSettings,
-    ) {}
-    async *[Symbol.asyncIterator](): AsyncIterator<TId> {
-        if (this.settings.predicate === null) {
-            return;
-        }
-        const index = 0;
-        const start = (this.settings.page - 1) * this.settings.pageSize;
-        const end = this.settings.page * this.settings.pageSize;
-        for await (const { id, element } of new AsyncBatchIterable(
-            this.fetchIds,
-            this.itemFactory,
-            this.settings.maxConcurrency,
-        )) {
-            if (this.settings.predicate(element)) {
-                const inRange = start <= index && index < end;
-                if (inRange) {
-                    yield id;
-                }
-                const isInEnd = end >= index;
-                if (isInEnd) {
-                    return;
-                }
-            }
-        }
-    }
-}
-
-/**
- * @internal
- */
 export async function runAsyncIterable<TValue>(
     iterable: AsyncIterable<TValue>,
 ): Promise<TValue[]> {
@@ -210,37 +175,33 @@ export class List<TElement, TId> implements IList<TElement, TId> {
         private readonly settings: ListSettings,
     ) {}
 
-    private fetchPaginatedIds = async (): Promise<TId[]> => {
-        if (this.settings.predicate === null) {
-            return paginate(
-                await this.fetchIds(),
+    private fetchPaginatedIds = async (): Promise<IPaginateData<TId>> => {
+        const allIds = await this.fetchIds();
+        return {
+            page: this.settings.page,
+            pageSize: this.settings.pageSize,
+            totalPages: Math.ceil(allIds.length / this.settings.pageSize),
+            totalElements: allIds.length,
+            elements: paginate(
+                allIds,
                 this.settings.page,
                 this.settings.pageSize,
-            );
-        }
-        return await runAsyncIterable(
-            new AsyncFilterIterable(
-                this.fetchIds,
-                this.itemFactory,
-                this.settings,
             ),
-        );
+        };
     };
 
     async fetch(): Promise<IPaginateData<TElement>> {
-        const arr = await runAsyncIterable(
+        const { elements: ids, ...rest } = await this.fetchPaginatedIds();
+        const elements = await runAsyncIterable(
             new AsyncBatchIterable(
-                this.fetchPaginatedIds,
+                () => Promise.resolve(ids),
                 this.itemFactory,
                 this.settings.maxConcurrency,
             ),
         );
         return {
-            elements: arr.map(({ element }) => element),
-            page: this.settings.page,
-            pageSize: this.settings.pageSize,
-            totalPages: Math.ceil(arr.length / this.settings.pageSize),
-            totalElements: arr.length,
+            elements: elements.map(({ element }) => element),
+            ...rest,
         };
     }
 
@@ -259,7 +220,7 @@ export class List<TElement, TId> implements IList<TElement, TId> {
     }
 
     private fetchOneId = async (index: number): Promise<TId | null> => {
-        const ids = await this.fetchPaginatedIds();
+        const { elements: ids } = await this.fetchPaginatedIds();
         return (ids[index] ?? null) as TId | null;
     };
 
@@ -291,19 +252,6 @@ export class List<TElement, TId> implements IList<TElement, TId> {
                 return this.itemFactory(id).map(mapFn);
             },
             this.settings,
-        );
-    }
-
-    filter<TOutput extends TElement>(
-        predicate: PredicateFn<TElement, TOutput>,
-    ): IList<TOutput, TId> {
-        return new List<TOutput, TId>(
-            this.fetchIds,
-            (id) => this.itemFactory(id) as IListElement<TOutput, TId>,
-            {
-                ...this.settings,
-                predicate,
-            },
         );
     }
 }

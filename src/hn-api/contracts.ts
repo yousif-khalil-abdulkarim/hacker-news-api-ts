@@ -39,10 +39,6 @@ export type IList<TElement, TId> = IFetchable<IPaginateData<TElement>> & {
     map<TOutput = TElement>(
         mapFn: MapFn<TElement, TOutput>,
     ): IList<TOutput, TId>;
-
-    filter<TOutput extends TElement>(
-        predicate: PredicateFn<TElement, TOutput>,
-    ): IList<TOutput, TId>;
 };
 
 export type CommentData = {

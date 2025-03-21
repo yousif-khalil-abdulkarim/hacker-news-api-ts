@@ -25,10 +25,10 @@ type IHnClientSettings = {
 };
 
 export function createHnApi({
-    cache = new TTLCache(5_000),
+    cache = new TTLCache(2_000),
     pageSize = 10,
     maxConcurrency = 10,
-}: IHnClientSettings): HnApi {
+}: IHnClientSettings = {}): HnApi {
     return new HnApi(
         new HnFlatApi("https://hacker-news.firebaseio.com/v0", cache),
         {

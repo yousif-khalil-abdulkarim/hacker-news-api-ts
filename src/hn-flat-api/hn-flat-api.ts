@@ -1,18 +1,16 @@
 import type {
     ItemJson,
     UserJson,
-    PositiveIntegerArray,
+    IntegerArray,
     ChangedItemsAndProfilesJson,
     IHnFlatApi,
     ICache,
-    PositiveInteger,
 } from "@/hn-flat-api/contracts.js";
 import {
     itemSchema,
     userSchema,
-    positiveIntegerArraySchema,
+    integerArraySchema,
     changedItemsAndProfilesSchema,
-    positiveIntegerSchema,
 } from "@/hn-flat-api/contracts.js";
 import { strict } from "assert";
 
@@ -40,11 +38,17 @@ export class HnFlatApi implements IHnFlatApi {
         return await this.cache.getOrSet<ItemJson>(
             `item/${itemId.toString()}`,
             async () => {
-                const response = await fetch(
-                    `${this.baseUrl}/item/${itemId.toString()}.json`,
-                );
-                const json: unknown = await response.json();
-                return itemSchema.parse(json);
+                let json: unknown;
+                try {
+                    const response = await fetch(
+                        `${this.baseUrl}/item/${itemId.toString()}.json`,
+                    );
+                    json = await response.json();
+                    return itemSchema.parse(json);
+                } catch (error: unknown) {
+                    console.error(json);
+                    throw error;
+                }
             },
         );
     }
@@ -57,43 +61,43 @@ export class HnFlatApi implements IHnFlatApi {
         });
     }
 
-    async fetchTopStories(): Promise<PositiveIntegerArray> {
+    async fetchTopStories(): Promise<IntegerArray> {
         return await this.cache.getOrSet("topstories", async () => {
             const response = await fetch(`${this.baseUrl}/topstories.json`);
             const json: unknown = await response.json();
-            return positiveIntegerArraySchema.parse(json);
+            return integerArraySchema.parse(json);
         });
     }
 
-    async fetchNewStories(): Promise<PositiveIntegerArray> {
+    async fetchNewStories(): Promise<IntegerArray> {
         return await this.cache.getOrSet("newstories", async () => {
             const response = await fetch(`${this.baseUrl}/newstories.json`);
             const json: unknown = await response.json();
-            return positiveIntegerArraySchema.parse(json);
+            return integerArraySchema.parse(json);
         });
     }
 
-    async fetchBestStories(): Promise<PositiveIntegerArray> {
+    async fetchBestStories(): Promise<IntegerArray> {
         return await this.cache.getOrSet("beststories", async () => {
             const response = await fetch(`${this.baseUrl}/beststories.json`);
             const json: unknown = await response.json();
-            return positiveIntegerArraySchema.parse(json);
+            return integerArraySchema.parse(json);
         });
     }
 
-    async fetchAskstories(): Promise<PositiveIntegerArray> {
+    async fetchAskstories(): Promise<IntegerArray> {
         return await this.cache.getOrSet("askstories", async () => {
             const response = await fetch(`${this.baseUrl}/askstories.json`);
             const json: unknown = await response.json();
-            return positiveIntegerArraySchema.parse(json);
+            return integerArraySchema.parse(json);
         });
     }
 
-    async fetchShowStories(): Promise<PositiveIntegerArray> {
+    async fetchShowStories(): Promise<IntegerArray> {
         return await this.cache.getOrSet("showstories", async () => {
             const response = await fetch(`${this.baseUrl}/showstories.json`);
             const json: unknown = await response.json();
-            return positiveIntegerArraySchema.parse(json);
+            return integerArraySchema.parse(json);
         });
     }
 
@@ -113,11 +117,5 @@ export class HnFlatApi implements IHnFlatApi {
             await Promise.allSettled(promises);
             return data;
         });
-    }
-
-    async fetchMaxItemId(): Promise<PositiveInteger> {
-        const response = await fetch(`${this.baseUrl}/topstories.json`);
-        const json: unknown = await response.json();
-        return positiveIntegerSchema.parse(json);
     }
 }
