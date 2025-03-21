@@ -43,7 +43,7 @@ export class HnFlatApi implements IHnFlatApi {
                 const response = await fetch(
                     `${this.baseUrl}/item/${itemId.toString()}.json`,
                 );
-                const json = await response.json();
+                const json: unknown = await response.json();
                 return itemSchema.parse(json);
             },
         );
@@ -52,7 +52,7 @@ export class HnFlatApi implements IHnFlatApi {
     async fetchUser(userId: string): Promise<UserJson> {
         return await this.cache.getOrSet(`user/${userId}`, async () => {
             const response = await fetch(`${this.baseUrl}/user/${userId}.json`);
-            const json = await response.json();
+            const json: unknown = await response.json();
             return userSchema.parse(json);
         });
     }
@@ -60,7 +60,7 @@ export class HnFlatApi implements IHnFlatApi {
     async fetchTopStories(): Promise<PositiveIntegerArray> {
         return await this.cache.getOrSet("topstories", async () => {
             const response = await fetch(`${this.baseUrl}/topstories.json`);
-            const json = await response.json();
+            const json: unknown = await response.json();
             return positiveIntegerArraySchema.parse(json);
         });
     }
@@ -68,7 +68,7 @@ export class HnFlatApi implements IHnFlatApi {
     async fetchNewStories(): Promise<PositiveIntegerArray> {
         return await this.cache.getOrSet("newstories", async () => {
             const response = await fetch(`${this.baseUrl}/newstories.json`);
-            const json = await response.json();
+            const json: unknown = await response.json();
             return positiveIntegerArraySchema.parse(json);
         });
     }
@@ -76,7 +76,7 @@ export class HnFlatApi implements IHnFlatApi {
     async fetchBestStories(): Promise<PositiveIntegerArray> {
         return await this.cache.getOrSet("beststories", async () => {
             const response = await fetch(`${this.baseUrl}/beststories.json`);
-            const json = await response.json();
+            const json: unknown = await response.json();
             return positiveIntegerArraySchema.parse(json);
         });
     }
@@ -84,7 +84,7 @@ export class HnFlatApi implements IHnFlatApi {
     async fetchAskstories(): Promise<PositiveIntegerArray> {
         return await this.cache.getOrSet("askstories", async () => {
             const response = await fetch(`${this.baseUrl}/askstories.json`);
-            const json = await response.json();
+            const json: unknown = await response.json();
             return positiveIntegerArraySchema.parse(json);
         });
     }
@@ -92,7 +92,7 @@ export class HnFlatApi implements IHnFlatApi {
     async fetchShowStories(): Promise<PositiveIntegerArray> {
         return await this.cache.getOrSet("showstories", async () => {
             const response = await fetch(`${this.baseUrl}/showstories.json`);
-            const json = await response.json();
+            const json: unknown = await response.json();
             return positiveIntegerArraySchema.parse(json);
         });
     }
@@ -100,7 +100,7 @@ export class HnFlatApi implements IHnFlatApi {
     async fetchChangedItemsAndProfiles(): Promise<ChangedItemsAndProfilesJson> {
         return await this.cache.getOrSet("updates", async () => {
             const response = await fetch(`${this.baseUrl}/updates.json`);
-            const json = await response.json();
+            const json: unknown = await response.json();
             const data = changedItemsAndProfilesSchema.parse(json);
             const { items, profiles } = data;
             const promises: Promise<unknown>[] = [];
@@ -117,7 +117,7 @@ export class HnFlatApi implements IHnFlatApi {
 
     async fetchMaxItemId(): Promise<PositiveInteger> {
         const response = await fetch(`${this.baseUrl}/topstories.json`);
-        const json = await response.json();
+        const json: unknown = await response.json();
         return positiveIntegerSchema.parse(json);
     }
 }
