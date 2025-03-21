@@ -50,7 +50,7 @@ export type CommentData = {
     commentId: number;
     kids: Items;
     parent: Item;
-    text?: string;
+    text: string;
     createAt: Date;
     type: "comment";
 };

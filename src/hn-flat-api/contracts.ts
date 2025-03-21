@@ -20,15 +20,12 @@ const unixTimestampSchema = z
 /**
  * @internal
  */
-const textSchema = z
-    .string()
-    .optional()
-    .transform((value) => {
-        if (value === "") {
-            return value;
-        }
+const textSchema = z.string().transform((value) => {
+    if (value === "") {
         return value;
-    });
+    }
+    return value;
+});
 
 /**
  * @internal
@@ -47,11 +44,11 @@ export const jobSchema = z.object({
     by: z.string(),
     id: positiveIntegerSchema,
     score: positiveIntegerSchema,
-    text: textSchema,
+    text: textSchema.optional(),
     time: unixTimestampSchema,
     title: z.string(),
     type: z.literal("job"),
-    url: textSchema,
+    url: textSchema.optional(),
 });
 
 /**
@@ -68,7 +65,7 @@ export const storySchema = z.object({
     id: positiveIntegerSchema,
     kids: positiveIntegerArraySchema,
     score: positiveIntegerSchema,
-    text: textSchema,
+    text: textSchema.optional(),
     time: unixTimestampSchema,
     title: z.string(),
     type: z.literal("story"),
@@ -107,7 +104,7 @@ export const pollSchema = z.object({
     kids: positiveIntegerArraySchema,
     parts: positiveIntegerArraySchema,
     score: positiveIntegerSchema,
-    text: textSchema,
+    text: textSchema.optional(),
     time: unixTimestampSchema,
     title: z.string(),
     type: z.literal("poll"),
@@ -126,7 +123,7 @@ export const pollOptionSchema = z.object({
     id: positiveIntegerSchema,
     poll: positiveIntegerSchema,
     score: positiveIntegerSchema,
-    text: textSchema,
+    text: textSchema.optional(),
     time: unixTimestampSchema,
     type: z.literal("pollopt"),
 });

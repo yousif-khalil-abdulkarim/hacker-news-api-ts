@@ -44,8 +44,7 @@
         "rimraf": "^6.0.1",
         "tsc-alias": "^1.8.11",
         "typedoc": "^0.28.0",
-        "typescript": "^5.8.2",
-        "vite-tsconfig-paths": "^5.1.4"
+        "typescript": "^5.8.2"
     },
     "dependencies": {
         "zod": "^3.24.2"
