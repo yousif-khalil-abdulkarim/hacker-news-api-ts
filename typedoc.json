@@ -2,7 +2,6 @@
     "out": "./docs",
     "entryPoints": ["./src/**/*.ts"],
     "exclude": [
-        "./src/**/*.test.ts",
         "./src/**/_module.ts",
         "./src/**/_module-exports.ts",
     ],

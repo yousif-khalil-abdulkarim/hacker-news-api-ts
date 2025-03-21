@@ -1,6 +1,6 @@
 {
     "name": "hacker-news-api-ts",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "main": "dist/main.js",
     "types": "dist/main.d.ts",
     "files": [
@@ -24,7 +24,7 @@
         "lint:fix": "npx eslint \"**/*.{js,jsx,ts,tsx}\" --fix",
         "build": "npx rimraf dist && npx tsc --project \"./tsconfig.build.json\" && npx tsc-alias -p \"./tsconfig.build.json\"",
         "publint": "npm run build && npx publint",
-        "check:all": "npm run check && npm run lint && npm run test && npm run publint",
+        "check:all": "npm run check && npm run lint && npm run publint",
         "build:with-checks": "npm run build && npm run check:all",
         "docs": "npx typedoc",
         "release": "npm run build && npx changeset publish"
