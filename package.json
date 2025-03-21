@@ -25,12 +25,11 @@
         "build": "npx rimraf dist && npx tsc --project \"./tsconfig.build.json\" && npx tsc-alias -p \"./tsconfig.build.json\"",
         "publint": "npm run build && npx publint",
         "check:all": "npm run check && npm run lint && npm run publint",
-        "build:with-checks": "npm run build && npm run check:all",
-        "docs": "npx typedoc",
         "release": "npm run build && npx changeset publish"
     },
     "devDependencies": {
         "@changesets/cli": "^2.28.1",
+        "@types/node": "^22.13.10",
         "@typescript-eslint/eslint-plugin": "^8.26.1",
         "@typescript-eslint/parser": "^8.26.1",
         "eslint": "^8.57.1",
@@ -43,7 +42,6 @@
         "publint": "^0.3.9",
         "rimraf": "^6.0.1",
         "tsc-alias": "^1.8.11",
-        "typedoc": "^0.28.0",
         "typescript": "^5.8.2"
     },
     "dependencies": {
