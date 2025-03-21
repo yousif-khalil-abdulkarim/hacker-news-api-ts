@@ -3,24 +3,24 @@ import { z } from "zod";
 /**
  * @internal
  */
-export const positiveIntegerSchema = z.number().int().positive();
+export const integerSchema = z.number().int();
 
 /**
  * @internal
  */
-export type PositiveInteger = z.infer<typeof positiveIntegerSchema>;
+export type Integer = z.infer<typeof integerSchema>;
 
 /**
  * @internal
  */
-const unixTimestampSchema = z
+export const unixTimestampSchema = z
     .number()
     .transform((timeInSeconds) => new Date(timeInSeconds * 1000));
 
 /**
  * @internal
  */
-const textSchema = z.string().transform((value) => {
+export const textSchema = z.string().transform((value) => {
     if (value === "") {
         return value;
     }
@@ -30,20 +30,20 @@ const textSchema = z.string().transform((value) => {
 /**
  * @internal
  */
-export const positiveIntegerArraySchema = positiveIntegerSchema.array();
+export const integerArraySchema = integerSchema.array().default([]);
 
 /**
  * @internal
  */
-export type PositiveIntegerArray = z.infer<typeof positiveIntegerArraySchema>;
+export type IntegerArray = z.infer<typeof integerArraySchema>;
 
 /**
  * @internal
  */
-export const jobSchema = z.object({
+export const jobItemSchema = z.object({
     by: z.string(),
-    id: positiveIntegerSchema,
-    score: positiveIntegerSchema,
+    id: integerSchema,
+    score: integerSchema,
     text: textSchema.optional(),
     time: unixTimestampSchema,
     title: z.string(),
@@ -54,17 +54,17 @@ export const jobSchema = z.object({
 /**
  * @internal
  */
-export type JobJson = z.infer<typeof jobSchema>;
+export type JobJson = z.infer<typeof jobItemSchema>;
 
 /**
  * @internal
  */
-export const storySchema = z.object({
+export const storyItemSchema = z.object({
     by: z.string(),
-    descendants: positiveIntegerSchema,
-    id: positiveIntegerSchema,
-    kids: positiveIntegerArraySchema,
-    score: positiveIntegerSchema,
+    descendants: integerSchema,
+    id: integerSchema,
+    kids: integerArraySchema,
+    score: integerSchema,
     text: textSchema.optional(),
     time: unixTimestampSchema,
     title: z.string(),
@@ -74,16 +74,16 @@ export const storySchema = z.object({
 /**
  * @internal
  */
-export type StoryJson = z.infer<typeof storySchema>;
+export type StoryJson = z.infer<typeof storyItemSchema>;
 
 /**
  * @internal
  */
-export const commentSchema = z.object({
+export const commentItemSchema = z.object({
     by: z.string(),
-    id: positiveIntegerSchema,
-    kids: positiveIntegerArraySchema,
-    parent: positiveIntegerSchema,
+    id: integerSchema,
+    kids: integerArraySchema,
+    parent: integerSchema,
     text: textSchema,
     time: unixTimestampSchema,
     type: z.literal("comment"),
@@ -92,18 +92,18 @@ export const commentSchema = z.object({
 /**
  * @internal
  */
-export type CommentJson = z.infer<typeof commentSchema>;
+export type CommentJson = z.infer<typeof commentItemSchema>;
 
 /**
  * @internal
  */
-export const pollSchema = z.object({
+export const pollItemSchema = z.object({
     by: z.string(),
-    descendants: positiveIntegerSchema,
-    id: positiveIntegerSchema,
-    kids: positiveIntegerArraySchema,
-    parts: positiveIntegerArraySchema,
-    score: positiveIntegerSchema,
+    descendants: integerSchema,
+    id: integerSchema,
+    kids: integerArraySchema,
+    parts: integerArraySchema,
+    score: integerSchema,
     text: textSchema.optional(),
     time: unixTimestampSchema,
     title: z.string(),
@@ -113,16 +113,16 @@ export const pollSchema = z.object({
 /**
  * @internal
  */
-export type PollJson = z.infer<typeof pollSchema>;
+export type PollJson = z.infer<typeof pollItemSchema>;
 
 /**
  * @internal
  */
-export const pollOptionSchema = z.object({
+export const pollOptionItemSchema = z.object({
     by: z.string(),
-    id: positiveIntegerSchema,
-    poll: positiveIntegerSchema,
-    score: positiveIntegerSchema,
+    id: integerSchema,
+    poll: integerSchema,
+    score: integerSchema,
     text: textSchema.optional(),
     time: unixTimestampSchema,
     type: z.literal("pollopt"),
@@ -131,16 +131,16 @@ export const pollOptionSchema = z.object({
 /**
  * @internal
  */
-export type PollOptionJson = z.infer<typeof pollOptionSchema>;
+export type PollOptionJson = z.infer<typeof pollOptionItemSchema>;
 
 /**
  * @internal
  */
-export const itemSchema = jobSchema
-    .or(storySchema)
-    .or(commentSchema)
-    .or(pollSchema)
-    .or(pollOptionSchema);
+export const itemSchema = jobItemSchema
+    .or(storyItemSchema)
+    .or(commentItemSchema)
+    .or(pollItemSchema)
+    .or(pollOptionItemSchema);
 
 /**
  * @internal
@@ -154,8 +154,8 @@ export const userSchema = z.object({
     id: z.string(),
     created: unixTimestampSchema,
     about: z.string().optional(),
-    karma: positiveIntegerSchema,
-    submitted: positiveIntegerArraySchema,
+    karma: integerSchema,
+    submitted: integerArraySchema,
 });
 
 /**
@@ -167,7 +167,7 @@ export type UserJson = z.infer<typeof userSchema>;
  * @internal
  */
 export const changedItemsAndProfilesSchema = z.object({
-    items: positiveIntegerArraySchema,
+    items: integerArraySchema,
     profiles: z.string().array(),
 });
 
@@ -199,17 +199,15 @@ export type IHnFlatApi = {
 
     fetchUser(userId: string): Promise<UserJson>;
 
-    fetchTopStories(): Promise<PositiveIntegerArray>;
+    fetchTopStories(): Promise<IntegerArray>;
 
-    fetchNewStories(): Promise<PositiveIntegerArray>;
+    fetchNewStories(): Promise<IntegerArray>;
 
-    fetchBestStories(): Promise<PositiveIntegerArray>;
+    fetchBestStories(): Promise<IntegerArray>;
 
-    fetchAskstories(): Promise<PositiveIntegerArray>;
+    fetchAskstories(): Promise<IntegerArray>;
 
-    fetchShowStories(): Promise<PositiveIntegerArray>;
+    fetchShowStories(): Promise<IntegerArray>;
 
     fetchChangedItemsAndProfiles(): Promise<ChangedItemsAndProfilesJson>;
-
-    fetchMaxItemId(): Promise<PositiveInteger>;
 };
