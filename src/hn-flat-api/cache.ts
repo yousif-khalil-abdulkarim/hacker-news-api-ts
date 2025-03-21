@@ -14,19 +14,6 @@ export class TTLCache<TBase> implements ICache<TBase> {
         return (this.transform.get(key) as TValue) ?? null;
     }
 
-    async getOrSet<TValue extends TBase>(
-        key: string,
-        value: () => Promise<TValue>,
-    ): Promise<TValue> {
-        const value_ = await this.get(key);
-        if (value_ === null) {
-            const insertValue = await value();
-            await this.set(key, insertValue);
-            return insertValue;
-        }
-        return value_ as TValue;
-    }
-
     // eslint-disable-next-line @typescript-eslint/require-await
     async set<TValue extends TBase>(key: string, value: TValue): Promise<void> {
         this.transform.set(key, value);
