@@ -181,11 +181,6 @@ export type ChangedItemsAndProfilesJson = z.infer<
 export type ICache<TBase = unknown> = {
     get<TValue extends TBase>(key: string): Promise<TValue | null>;
 
-    getOrSet<TValue extends TBase>(
-        key: string,
-        value: () => Promise<TValue>,
-    ): Promise<TValue>;
-
     set<TValue extends TBase>(key: string, value: TValue): Promise<void>;
 
     remove(key: string): Promise<void>;

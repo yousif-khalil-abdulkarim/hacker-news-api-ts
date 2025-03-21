@@ -35,77 +35,99 @@ export class HnFlatApi implements IHnFlatApi {
     }
 
     async fetchItem(itemId: number): Promise<ItemJson> {
-        return await this.cache.getOrSet<ItemJson>(
-            `item/${itemId.toString()}`,
-            async () => {
-                let json: unknown;
-                try {
-                    const response = await fetch(
-                        `${this.baseUrl}/item/${itemId.toString()}.json`,
-                    );
-                    json = await response.json();
-                    return itemSchema.parse(json);
-                } catch (error: unknown) {
-                    console.error(json);
-                    throw error;
-                }
-            },
-        );
+        const key = `item/${itemId.toString()}`;
+        const value = await this.cache.get<ItemJson>(key);
+        if (value === null) {
+            const response = await fetch(
+                `${this.baseUrl}/item/${itemId.toString()}.json`,
+            );
+            const json: unknown = await response.json();
+            await this.cache.set(key, json);
+            return itemSchema.parse(json);
+        }
+        return value;
     }
 
     async fetchUser(userId: string): Promise<UserJson> {
-        return await this.cache.getOrSet(`user/${userId}`, async () => {
+        const key = `user/${userId}`;
+        const value = await this.cache.get<UserJson>(key);
+        if (value === null) {
             const response = await fetch(`${this.baseUrl}/user/${userId}.json`);
             const json: unknown = await response.json();
+            await this.cache.set(key, json);
             return userSchema.parse(json);
-        });
+        }
+        return value;
     }
 
     async fetchTopStories(): Promise<IntegerArray> {
-        return await this.cache.getOrSet("topstories", async () => {
-            const response = await fetch(`${this.baseUrl}/topstories.json`);
+        const key = "topstories";
+        const value = await this.cache.get<IntegerArray>(key);
+        if (value === null) {
+            const response = await fetch(`${this.baseUrl}/${key}.json`);
             const json: unknown = await response.json();
+            await this.cache.set(key, json);
             return integerArraySchema.parse(json);
-        });
+        }
+        return value;
     }
 
     async fetchNewStories(): Promise<IntegerArray> {
-        return await this.cache.getOrSet("newstories", async () => {
-            const response = await fetch(`${this.baseUrl}/newstories.json`);
+        const key = "newstories";
+        const value = await this.cache.get<IntegerArray>(key);
+        if (value === null) {
+            const response = await fetch(`${this.baseUrl}/${key}.json`);
             const json: unknown = await response.json();
+            await this.cache.set(key, json);
             return integerArraySchema.parse(json);
-        });
+        }
+        return value;
     }
 
     async fetchBestStories(): Promise<IntegerArray> {
-        return await this.cache.getOrSet("beststories", async () => {
-            const response = await fetch(`${this.baseUrl}/beststories.json`);
+        const key = "beststories";
+        const value = await this.cache.get<IntegerArray>(key);
+        if (value === null) {
+            const response = await fetch(`${this.baseUrl}/${key}.json`);
             const json: unknown = await response.json();
+            await this.cache.set(key, json);
             return integerArraySchema.parse(json);
-        });
+        }
+        return value;
     }
 
     async fetchAskstories(): Promise<IntegerArray> {
-        return await this.cache.getOrSet("askstories", async () => {
-            const response = await fetch(`${this.baseUrl}/askstories.json`);
+        const key = "askstories";
+        const value = await this.cache.get<IntegerArray>("key");
+        if (value === null) {
+            const response = await fetch(`${this.baseUrl}/${key}.json`);
             const json: unknown = await response.json();
+            await this.cache.set("key", json);
             return integerArraySchema.parse(json);
-        });
+        }
+        return value;
     }
 
     async fetchShowStories(): Promise<IntegerArray> {
-        return await this.cache.getOrSet("showstories", async () => {
-            const response = await fetch(`${this.baseUrl}/showstories.json`);
+        const key = "showstories";
+        const value = await this.cache.get<IntegerArray>(key);
+        if (value === null) {
+            const response = await fetch(`${this.baseUrl}/${key}.json`);
             const json: unknown = await response.json();
+            await this.cache.set(key, json);
             return integerArraySchema.parse(json);
-        });
+        }
+        return value;
     }
 
     async fetchChangedItemsAndProfiles(): Promise<ChangedItemsAndProfilesJson> {
-        return await this.cache.getOrSet("updates", async () => {
-            const response = await fetch(`${this.baseUrl}/updates.json`);
+        const key = "updates";
+        const value = await this.cache.get<ChangedItemsAndProfilesJson>(key);
+        if (value === null) {
+            const response = await fetch(`${this.baseUrl}/${key}.json`);
             const json: unknown = await response.json();
             const data = changedItemsAndProfilesSchema.parse(json);
+            await this.cache.set(key, data);
             const { items, profiles } = data;
             const promises: Promise<unknown>[] = [];
             for (const item of items) {
@@ -116,6 +138,7 @@ export class HnFlatApi implements IHnFlatApi {
             }
             await Promise.allSettled(promises);
             return data;
-        });
+        }
+        return value;
     }
 }

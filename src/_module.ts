@@ -1,7 +1,28 @@
-import { HnApi } from "@/hn-api/_module.js";
+import {
+    HnApi,
+    type IFetchable,
+    type IPaginateData,
+    type MapFn,
+    type PredicateGuard,
+    type PredicateFn,
+    type IListElement,
+    type IList,
+    type CommentData,
+    type JobData,
+    type PollData,
+    type PollOptData,
+    type StoryData,
+    type ItemData,
+    type UserData,
+    type User,
+    type Users,
+    type Item,
+    type Items,
+    type IHnApi,
+} from "@/hn-api/_module.js";
 import { HnFlatApi, type ICache, TTLCache } from "@/hn-flat-api/_module.js";
 
-type IHnClientSettings = {
+export type IHnClientSettings = {
     /**
      * @default
      * ```ts
@@ -39,4 +60,26 @@ export function createHnApi({
         },
     );
 }
-export { type ICache, TTLCache };
+export {
+    type ICache,
+    type IFetchable,
+    type IPaginateData,
+    type MapFn,
+    type PredicateGuard,
+    type PredicateFn,
+    type IListElement,
+    type IList,
+    type CommentData,
+    type JobData,
+    type PollData,
+    type PollOptData,
+    type StoryData,
+    type ItemData,
+    type UserData,
+    type User,
+    type Users,
+    type Item,
+    type Items,
+    type IHnApi,
+    TTLCache,
+};
