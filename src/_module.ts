@@ -26,7 +26,7 @@ export type IHnClientSettings = {
     /**
      * @default
      * ```ts
-     * import { TTLCache } from "hn-news-api-ts";
+     * import { TTLCache } from "hn-api-ts";
      *
      * // It will cache every fetched Hacker News item or user for 2 seconds.
      * new TTLCache(2_000);
