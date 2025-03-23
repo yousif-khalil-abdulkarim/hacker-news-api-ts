@@ -19,6 +19,7 @@ import {
     type Item,
     type Items,
     type IHnApi,
+    isItemOf,
 } from "@/hn-api/_module.js";
 import { HnFlatApi, type ICache, TTLCache } from "@/hn-flat-api/_module.js";
 
@@ -56,11 +57,11 @@ export function createHnApi({
             page: 1,
             pageSize,
             maxConcurrency,
-            predicate: null,
         },
     );
 }
 export {
+    isItemOf,
     type ICache,
     type IFetchable,
     type IPaginateData,

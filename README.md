@@ -115,7 +115,7 @@ const item = topStories.getItem(0);
 The `ListElement` class instance can be used in the following way.
 
 ```ts
-import { createHnApi } from "hn-api-ts";
+import { createHnApi, isItemOf } from "hn-api-ts";
 
 const client = createHnApi();
 
@@ -135,11 +135,32 @@ console.log(await topStories.getItem(-1).fetch());
 // You can provide a map function that will be called after fetching the data.
 // The map function is used to transform the data.
 console.log(await item.map((item) => item.type).fetch());
+
+// You can use ensure function to ensure the ListElement follows the given predicate function.
+// If the element doesnt follow the given predicate a TypeError will be thrown.
+console.log(await item.ensure((item) => item.type === "comment").fetch());
+
+// You can provide your own error
+console.log(
+    await item
+        .ensure({
+            predicate: (item) => item.type === "comment",
+            error: (item) =>
+                new TypeError(
+                    `Expected the value.field to be "comment" but got instead "${item.type}"`,
+                ),
+        })
+        .fetch(),
+);
+
+// The library have build in predicator factory function that is used for checking the item type
+console.log(await item.ensure(isItemOf("comment")).fetch());
 ```
 
 <br>
 
 Fetching nested data.
+
 ```ts
 import { createHnApi } from "hn-api-ts";
 

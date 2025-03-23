@@ -11,21 +11,32 @@ export type IPaginateData<TElement> = {
 };
 
 export type MapFn<TInput, TOutput> = (
-    item: TInput,
+    value: TInput,
 ) => TOutput | Promise<TOutput>;
 
 export type PredicateGuard<TInput, TOutput extends TInput> = (
-    item: TInput,
-) => item is TOutput;
-export type PredicateFn<TInput, TOutput extends TInput> =
+    value: TInput,
+) => value is TOutput;
+export type PredicateFn<TInput> = (value: TInput) => boolean | Promise<boolean>;
+export type Predicate<TInput, TOutput extends TInput> =
     | PredicateGuard<TInput, TOutput>
-    | ((item: TInput) => boolean | Promise<boolean>);
+    | PredicateFn<TInput>;
+export type PredicateWithError<TInput, TOutput extends TInput> = {
+    predicate: Predicate<TInput, TOutput>;
+    error: (value: TInput) => unknown;
+};
 
-export type IListElement<TElement, TId> = IFetchable<TElement> & {
+export type IListElement<TValue, TId> = IFetchable<TValue> & {
     getId(): Promise<TId>;
 
-    map<TOutput = TElement>(
-        mapFn: MapFn<TElement, TOutput>,
+    ensure<TOutput extends TValue = TValue>(
+        predicate:
+            | Predicate<TValue, TOutput>
+            | PredicateWithError<TValue, TOutput>,
+    ): IListElement<TOutput, TId>;
+
+    map<TOutput = TValue>(
+        mapFn: MapFn<TValue, TOutput>,
     ): IListElement<TOutput, TId>;
 };
 
@@ -98,6 +109,19 @@ export type ItemData =
     | PollData
     | PollOptData
     | StoryData;
+
+export function isItemOf<TType extends ItemData["type"]>(
+    type: TType,
+): PredicateWithError<ItemData, Extract<ItemData, { type: TType }>> {
+    return {
+        predicate: (value) => value.type === type,
+        error: (value) =>
+            new TypeError(
+                `Expected value.type field to be "${type}" but got instead "${value.type}"`,
+            ),
+    };
+}
+
 export type UserData = {
     username: string;
     createdAt: Date;
