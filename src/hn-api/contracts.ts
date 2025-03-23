@@ -43,7 +43,7 @@ export type IList<TElement, TId> = IFetchable<IPaginateData<TElement>> & {
 
 export type CommentData = {
     createdBy: User;
-    commentId: number;
+    id: number;
     kids: Items;
     parent: Item;
     text: string;
@@ -52,7 +52,7 @@ export type CommentData = {
 };
 export type JobData = {
     createdBy: User;
-    jobId: number;
+    id: number;
     score: number;
     text?: string;
     createdAt: Date;
@@ -63,7 +63,7 @@ export type JobData = {
 export type PollData = {
     createdBy: User;
     totalKids: number;
-    pollId: number;
+    id: number;
     kids: Items;
     parts: Items;
     score: number;
@@ -74,7 +74,7 @@ export type PollData = {
 };
 export type PollOptData = {
     createdBy: User;
-    pollOptId: number;
+    id: number;
     pollId: Item;
     score: number;
     text?: string;
@@ -84,7 +84,7 @@ export type PollOptData = {
 export type StoryData = {
     createdBy: User;
     totalKids: number;
-    storyId: number;
+    id: number;
     kids: Items;
     score: number;
     text?: string;
