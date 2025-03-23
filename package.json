@@ -25,7 +25,8 @@
         "build": "npx rimraf dist && npx tsc --project \"./tsconfig.build.json\" && npx tsc-alias -p \"./tsconfig.build.json\"",
         "publint": "npm run build && npx publint",
         "check:all": "npm run check && npm run lint && npm run publint",
-        "release": "npm run build && npx changeset publish"
+        "release": "npm run build && npx changeset publish",
+        "generate-types": "npx tsx src/scripts/generate-types.ts"
     },
     "devDependencies": {
         "@changesets/cli": "^2.28.1",
@@ -40,8 +41,10 @@
         "eslint-plugin-tsdoc": "^0.4.0",
         "eslint-plugin-typescript-enum": "^2.1.0",
         "publint": "^0.3.9",
+        "quicktype-core": "^23.0.171",
         "rimraf": "^6.0.1",
         "tsc-alias": "^1.8.11",
+        "tsx": "^4.19.3",
         "typescript": "^5.8.2"
     },
     "dependencies": {
