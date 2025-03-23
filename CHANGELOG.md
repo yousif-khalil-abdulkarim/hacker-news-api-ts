@@ -1,5 +1,15 @@
 # hn-api-ts
 
+## 0.4.0
+
+### Minor Changes
+
+- 89d6dba: Made all id fields to have the same name
+
+### Patch Changes
+
+- 2a881d6: Updated docs
+
 ## 0.3.0
 
 ### Minor Changes
