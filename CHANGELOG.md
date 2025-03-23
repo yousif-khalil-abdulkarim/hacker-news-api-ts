@@ -1,5 +1,11 @@
 # hn-api-ts
 
+## 0.5.0
+
+### Minor Changes
+
+- 03a9ec5: Added new method on ListElement class: the ensure method validates the ListElement data based on given predicator function if the predicator function returns false than a TypeError will be thrown by default.
+
 ## 0.4.0
 
 ### Minor Changes
