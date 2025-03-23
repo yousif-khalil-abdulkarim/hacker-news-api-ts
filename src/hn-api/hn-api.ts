@@ -268,7 +268,7 @@ export class HnApi implements IHnApi {
     private handleComment = (json: CommentJson): CommentData => {
         return {
             createdBy: this.userFactory(json.by),
-            commentId: json.id,
+            id: json.id,
             kids: new List(
                 () => Promise.resolve(json.kids),
                 this.itemFactory,
@@ -284,7 +284,7 @@ export class HnApi implements IHnApi {
     private handleJob = (json: JobJson): JobData => {
         return {
             createdBy: this.userFactory(json.by),
-            jobId: json.id,
+            id: json.id,
             score: json.score,
             text: json.text,
             createdAt: json.time,
@@ -298,7 +298,7 @@ export class HnApi implements IHnApi {
         return {
             createdBy: this.userFactory(json.by),
             totalKids: json.descendants,
-            pollId: json.id,
+            id: json.id,
             kids: new List(
                 () => Promise.resolve(json.kids),
                 this.itemFactory,
@@ -320,7 +320,7 @@ export class HnApi implements IHnApi {
     private handlePollOption = (json: PollOptionJson): PollOptData => {
         return {
             createdBy: this.userFactory(json.by),
-            pollOptId: json.id,
+            id: json.id,
             pollId: this.itemFactory(json.id),
             score: json.score,
             text: json.text,
@@ -333,7 +333,7 @@ export class HnApi implements IHnApi {
         return {
             createdBy: this.userFactory(json.by),
             totalKids: json.descendants,
-            storyId: json.id,
+            id: json.id,
             kids: new List(
                 () => Promise.resolve(json.kids),
                 this.itemFactory,
