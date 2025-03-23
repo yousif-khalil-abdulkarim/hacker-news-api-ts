@@ -23,8 +23,9 @@ import type {
     Users,
     IHnApi,
     MapFn,
-    PredicateFn,
     IPaginateData,
+    Predicate,
+    PredicateWithError,
 } from "@/hn-api/contracts.js";
 
 /**
@@ -129,10 +130,34 @@ export class ListElement<TValue, TId> implements IListElement<TValue, TId> {
         return this.fetchId();
     }
 
+    ensure<TOutput extends TValue = TValue>(
+        predicate:
+            | Predicate<TValue, TOutput>
+            | PredicateWithError<TValue, TOutput>,
+    ): IListElement<TOutput, TId> {
+        return new ListElement(this.fetchId, async (id) => {
+            let errorFactory: ((item: TValue) => unknown) | null = null;
+            if (typeof predicate !== "function") {
+                errorFactory = predicate.error;
+                predicate = predicate.predicate;
+            }
+            const value = await this.elementFactory(id);
+            if (!(await predicate(value))) {
+                const message =
+                    "The ListElement data did not match the predicate";
+                if (errorFactory === null) {
+                    throw new TypeError(message);
+                }
+                throw errorFactory(value);
+            }
+            return value as TOutput;
+        });
+    }
+
     map<TOutput = TValue>(
         mapFn: MapFn<TValue, TOutput>,
     ): IListElement<TOutput, TId> {
-        return new ListElement<TOutput, TId>(this.fetchId, async (id) => {
+        return new ListElement(this.fetchId, async (id) => {
             return mapFn(await this.elementFactory(id));
         });
     }
@@ -145,7 +170,6 @@ export type ListSettings = {
     page: number;
     pageSize: number;
     maxConcurrency: number;
-    predicate: PredicateFn<any, any> | null;
 };
 
 /**
@@ -370,7 +394,7 @@ export class HnApi implements IHnApi {
     };
 
     private userFactory = (id: string): User => {
-        return new ListElement(
+        return new ListElement<UserData, string>(
             () => Promise.resolve(id),
             async (id) => {
                 const json = await this.flatApi.fetchUser(id);
