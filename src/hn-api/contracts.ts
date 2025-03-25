@@ -52,70 +52,91 @@ export type IList<TElement, TId> = IFetchable<IPaginateData<TElement>> & {
     ): IList<TOutput, TId>;
 };
 
-export type CreatedBy =
+type DeletedItem<
+    TType extends "comment" | "job" | "poll" | "pollopt" | "story",
+> = {
+    dead: boolean;
+    deleted: true;
+    id: number;
+    createdAt: Date;
+    type: TType;
+};
+export type CommentData =
     | {
           createdBy: User;
+          id: number;
+          kids: Items;
+          parent: Item;
+          text: string | undefined;
+          createdAt: Date;
+          url: string | undefined;
           deleted: false;
+          dead: boolean;
+          type: "comment";
       }
+    | DeletedItem<"comment">;
+export type JobData =
     | {
-          createdBy: undefined;
-          deleted: true;
-      };
-export type CommentData = {
-    id: number;
-    kids: Items;
-    parent: Item;
-    text: string | undefined;
-    createdAt: Date;
-    url: string | undefined;
-    dead: boolean;
-    type: "comment";
-} & CreatedBy;
-export type JobData = {
-    id: number;
-    score: number;
-    text: string | undefined;
-    createdAt: Date;
-    title: string | undefined;
-    url: string | undefined;
-    dead: boolean;
-    type: "job";
-} & CreatedBy;
-export type PollData = {
-    totalKids: number;
-    id: number;
-    kids: Items;
-    parts: Items;
-    score: number;
-    text: string | undefined;
-    createdAt: Date;
-    title: string | undefined;
-    url: string | undefined;
-    dead: boolean;
-    type: "poll";
-} & CreatedBy;
-export type PollOptData = {
-    id: number;
-    pollId: Item;
-    score: number;
-    text: string | undefined;
-    createdAt: Date;
-    url: string | undefined;
-    dead: boolean;
-    type: "pollopt";
-} & CreatedBy;
-export type StoryData = {
-    totalKids: number;
-    id: number;
-    kids: Items;
-    score: number;
-    text: string | undefined;
-    createdAt: Date;
-    title: string | undefined;
-    url: string | undefined;
-    dead: boolean;
-    type: "story";
-};
+          createdBy: User;
+          id: number;
+          score: number;
+          text: string | undefined;
+          createdAt: Date;
+          title: string | undefined;
+          url: string | undefined;
+          deleted: false;
+          dead: boolean;
+          type: "job";
+      }
+    | DeletedItem<"job">;
+export type PollData =
+    | {
+          createdBy: User;
+          totalKids: number;
+          id: number;
+          kids: Items;
+          parts: Items;
+          score: number;
+          text: string | undefined;
+          createdAt: Date;
+          title: string | undefined;
+          url: string | undefined;
+          deleted: false;
+          dead: boolean;
+          type: "poll";
+      }
+    | DeletedItem<"poll">;
+export type PollOptData =
+    | {
+          createdBy: User;
+          id: number;
+          pollId: Item;
+          score: number;
+          text: string | undefined;
+          createdAt: Date;
+          url: string | undefined;
+          deleted: false;
+          dead: boolean;
+          type: "pollopt";
+      }
+    | DeletedItem<"pollopt">;
+export type StoryData =
+    | {
+          createdBy: User;
+          totalKids: number;
+          id: number;
+          kids: Items;
+          score: number;
+          text: string | undefined;
+          createdAt: Date;
+          title: string | undefined;
+          url: string | undefined;
+          deleted: false;
+          dead: boolean;
+          type: "story";
+      }
+    | DeletedItem<"story">;
+
 export type ItemData =
     | CommentData
     | JobData

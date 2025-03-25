@@ -27,7 +27,7 @@ import type {
     IPaginateData,
     Predicate,
     PredicateWithError,
-    CreatedBy,
+    ItemData,
 } from "@/hn-api/contracts.js";
 
 /**
@@ -396,57 +396,106 @@ export class HnApi implements IHnApi {
         private readonly settings: ListSettings,
     ) {}
 
-    private handleCreatedBy(json: ItemJson): CreatedBy {
-        let createdBy: CreatedBy;
-        if (json.by === undefined) {
-            createdBy = {
-                createdBy: undefined,
+    private handleComment = (json: CommentJson): CommentData => {
+        if (json.deleted) {
+            return {
+                dead: json.dead,
                 deleted: true,
-            };
-        } else {
-            createdBy = {
-                createdBy: this.userFactory(json.by),
-                deleted: false,
+                id: json.id,
+                createdAt: json.time,
+                type: json.type,
             };
         }
-        return createdBy;
-    }
-
-    private handleComment = (json: CommentJson): CommentData => {
+        if (json.by === undefined) {
+            throw new TypeError("Unable to process data");
+        }
         return {
-            ...this.handleCreatedBy(json),
+            createdBy: new ListElement(
+                () => {
+                    if (json.by === undefined) {
+                        throw new TypeError("Unable to process data");
+                    }
+                    return Promise.resolve(json.by);
+                },
+                (id) => this.userFactory(id).fetch(),
+            ),
             id: json.id,
             kids: new List(
                 () => Promise.resolve(json.kids),
                 this.itemFactory,
                 this.settings,
             ),
-            parent: this.itemFactory(json.parent),
+            parent: new ListElement(
+                () => Promise.resolve(json.parent),
+                (id) => this.itemFactory(id).fetch(),
+            ),
             text: json.text,
             createdAt: json.time,
             url: json.url,
+            deleted: false,
             dead: json.dead,
             type: json.type,
         };
     };
 
     private handleJob = (json: JobJson): JobData => {
+        if (json.deleted) {
+            return {
+                dead: json.dead,
+                deleted: true,
+                id: json.id,
+                createdAt: json.time,
+                type: json.type,
+            };
+        }
+        if (json.by === undefined) {
+            throw new TypeError("Unable to process data");
+        }
         return {
-            ...this.handleCreatedBy(json),
+            createdBy: new ListElement(
+                () => {
+                    if (json.by === undefined) {
+                        throw new TypeError("Unable to process data");
+                    }
+                    return Promise.resolve(json.by);
+                },
+                (id) => this.userFactory(id).fetch(),
+            ),
             id: json.id,
             score: json.score,
             text: json.text,
             createdAt: json.time,
             title: json.title,
             url: json.url,
+            deleted: false,
             dead: json.dead,
             type: json.type,
         };
     };
 
     private handlePoll = (json: PollJson): PollData => {
+        if (json.deleted) {
+            return {
+                dead: json.dead,
+                deleted: true,
+                id: json.id,
+                createdAt: json.time,
+                type: json.type,
+            };
+        }
+        if (json.by === undefined) {
+            throw new TypeError("Unable to process data");
+        }
         return {
-            ...this.handleCreatedBy(json),
+            createdBy: new ListElement(
+                () => {
+                    if (json.by === undefined) {
+                        throw new TypeError("Unable to process data");
+                    }
+                    return Promise.resolve(json.by);
+                },
+                (id) => this.userFactory(id).fetch(),
+            ),
             totalKids: json.descendants,
             id: json.id,
             kids: new List(
@@ -464,28 +513,73 @@ export class HnApi implements IHnApi {
             createdAt: json.time,
             title: json.title,
             url: json.url,
+            deleted: false,
             dead: json.dead,
             type: json.type,
         };
     };
 
     private handlePollOption = (json: PollOptionJson): PollOptData => {
+        if (json.deleted) {
+            return {
+                dead: json.dead,
+                deleted: true,
+                id: json.id,
+                createdAt: json.time,
+                type: json.type,
+            };
+        }
+        if (json.by === undefined) {
+            throw new TypeError("Unable to process data");
+        }
         return {
-            ...this.handleCreatedBy(json),
+            createdBy: new ListElement(
+                () => {
+                    if (json.by === undefined) {
+                        throw new TypeError("Unable to process data");
+                    }
+                    return Promise.resolve(json.by);
+                },
+                (id) => this.userFactory(id).fetch(),
+            ),
             id: json.id,
-            pollId: this.itemFactory(json.id),
+            pollId: new ListElement(
+                () => Promise.resolve(json.poll),
+                (id) => this.itemFactory(id).fetch(),
+            ),
             score: json.score,
             text: json.text,
             createdAt: json.time,
             url: json.url,
-            type: json.type,
+            deleted: json.deleted,
             dead: json.dead,
+            type: json.type,
         };
     };
 
     private handleStory = (json: StoryJson): StoryData => {
+        if (json.deleted) {
+            return {
+                dead: json.dead,
+                deleted: true,
+                id: json.id,
+                createdAt: json.time,
+                type: json.type,
+            };
+        }
+        if (json.by === undefined) {
+            throw new TypeError("Unable to process data");
+        }
         return {
-            ...this.handleCreatedBy(json),
+            createdBy: new ListElement(
+                () => {
+                    if (json.by === undefined) {
+                        throw new TypeError("Unable to process data");
+                    }
+                    return Promise.resolve(json.by);
+                },
+                (id) => this.userFactory(id).fetch(),
+            ),
             totalKids: json.descendants,
             id: json.id,
             kids: new List(
@@ -498,30 +592,32 @@ export class HnApi implements IHnApi {
             createdAt: json.time,
             title: json.title,
             url: json.url,
+            deleted: false,
             dead: json.dead,
             type: json.type,
         };
     };
 
+    private handleItem = (json: ItemJson): ItemData => {
+        if (json.type === "comment") {
+            return this.handleComment(json);
+        }
+        if (json.type === "job") {
+            return this.handleJob(json);
+        }
+        if (json.type === "poll") {
+            return this.handlePoll(json);
+        }
+        if (json.type === "pollopt") {
+            return this.handlePollOption(json);
+        }
+        return this.handleStory(json);
+    };
+
     private itemFactory = (id: number): Item => {
         return new ListElement(
             () => Promise.resolve(id),
-            async (id) => {
-                const json = await this.flatApi.fetchItem(id);
-                if (json.type === "comment") {
-                    return this.handleComment(json);
-                }
-                if (json.type === "job") {
-                    return this.handleJob(json);
-                }
-                if (json.type === "poll") {
-                    return this.handlePoll(json);
-                }
-                if (json.type === "pollopt") {
-                    return this.handlePollOption(json);
-                }
-                return this.handleStory(json);
-            },
+            async (id) => this.handleItem(await this.flatApi.fetchItem(id)),
         );
     };
 
