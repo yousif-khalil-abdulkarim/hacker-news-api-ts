@@ -27,11 +27,7 @@ import type {
     IPaginateData,
     Predicate,
     PredicateWithError,
-<<<<<<< HEAD
     ItemData,
-=======
-    CreatedBy,
->>>>>>> main
 } from "@/hn-api/contracts.js";
 
 /**
@@ -472,7 +468,6 @@ export class HnApi implements IHnApi {
             throw new TypeError("Unable to process data");
         }
         return {
-<<<<<<< HEAD
             createdBy: new ListElement(
                 () => {
                     if (json.by === undefined) {
@@ -482,19 +477,13 @@ export class HnApi implements IHnApi {
                 },
                 (id) => this.userFactory(id).fetch(),
             ),
-=======
-            ...this.handleCreatedBy(json),
->>>>>>> main
             id: json.id,
             score: json.score,
             text: json.text,
             createdAt: json.time,
             title: json.title,
             url: json.url,
-<<<<<<< HEAD
             deleted: false,
-=======
->>>>>>> main
             dead: json.dead,
             type: json.type,
         };
@@ -514,7 +503,6 @@ export class HnApi implements IHnApi {
             throw new TypeError("Unable to process data");
         }
         return {
-<<<<<<< HEAD
             createdBy: new ListElement(
                 () => {
                     if (json.by === undefined) {
@@ -524,9 +512,6 @@ export class HnApi implements IHnApi {
                 },
                 (id) => this.userFactory(id).fetch(),
             ),
-=======
-            ...this.handleCreatedBy(json),
->>>>>>> main
             totalKids: json.descendants,
             id: json.id,
             kids: new List(
@@ -544,10 +529,7 @@ export class HnApi implements IHnApi {
             createdAt: json.time,
             title: json.title,
             url: json.url,
-<<<<<<< HEAD
             deleted: false,
-=======
->>>>>>> main
             dead: json.dead,
             type: json.type,
         };
@@ -567,7 +549,6 @@ export class HnApi implements IHnApi {
             throw new TypeError("Unable to process data");
         }
         return {
-<<<<<<< HEAD
             createdBy: new ListElement(
                 () => {
                     if (json.by === undefined) {
@@ -577,9 +558,6 @@ export class HnApi implements IHnApi {
                 },
                 (id) => this.userFactory(id).fetch(),
             ),
-=======
-            ...this.handleCreatedBy(json),
->>>>>>> main
             id: json.id,
             pollId: new ListElement(
                 () => Promise.resolve(json.poll),
@@ -589,11 +567,8 @@ export class HnApi implements IHnApi {
             text: json.text,
             createdAt: json.time,
             url: json.url,
-<<<<<<< HEAD
             deleted: json.deleted,
             dead: json.dead,
-=======
->>>>>>> main
             type: json.type,
             dead: json.dead,
         };
@@ -613,7 +588,6 @@ export class HnApi implements IHnApi {
             throw new TypeError("Unable to process data");
         }
         return {
-<<<<<<< HEAD
             createdBy: new ListElement(
                 () => {
                     if (json.by === undefined) {
@@ -623,9 +597,6 @@ export class HnApi implements IHnApi {
                 },
                 (id) => this.userFactory(id).fetch(),
             ),
-=======
-            ...this.handleCreatedBy(json),
->>>>>>> main
             totalKids: json.descendants,
             id: json.id,
             kids: new List(
@@ -638,10 +609,7 @@ export class HnApi implements IHnApi {
             createdAt: json.time,
             title: json.title,
             url: json.url,
-<<<<<<< HEAD
             deleted: false,
-=======
->>>>>>> main
             dead: json.dead,
             type: json.type,
         };

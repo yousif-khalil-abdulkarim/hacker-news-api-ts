@@ -52,7 +52,6 @@ export type IList<TElement, TId> = IFetchable<IPaginateData<TElement>> & {
     ): IList<TOutput, TId>;
 };
 
-<<<<<<< HEAD
 type DeletedItem<
     TType extends "comment" | "job" | "poll" | "pollopt" | "story",
 > = {
@@ -61,71 +60,6 @@ type DeletedItem<
     id: number;
     createdAt: Date;
     type: TType;
-=======
-export type CreatedBy =
-    | {
-          createdBy: User;
-          deleted: false;
-      }
-    | {
-          createdBy: undefined;
-          deleted: true;
-      };
-export type CommentData = {
-    id: number;
-    kids: Items;
-    parent: Item;
-    text: string | undefined;
-    createdAt: Date;
-    url: string | undefined;
-    dead: boolean;
-    type: "comment";
-} & CreatedBy;
-export type JobData = {
-    id: number;
-    score: number;
-    text: string | undefined;
-    createdAt: Date;
-    title: string | undefined;
-    url: string | undefined;
-    dead: boolean;
-    type: "job";
-} & CreatedBy;
-export type PollData = {
-    totalKids: number;
-    id: number;
-    kids: Items;
-    parts: Items;
-    score: number;
-    text: string | undefined;
-    createdAt: Date;
-    title: string | undefined;
-    url: string | undefined;
-    dead: boolean;
-    type: "poll";
-} & CreatedBy;
-export type PollOptData = {
-    id: number;
-    pollId: Item;
-    score: number;
-    text: string | undefined;
-    createdAt: Date;
-    url: string | undefined;
-    dead: boolean;
-    type: "pollopt";
-} & CreatedBy;
-export type StoryData = {
-    totalKids: number;
-    id: number;
-    kids: Items;
-    score: number;
-    text: string | undefined;
-    createdAt: Date;
-    title: string | undefined;
-    url: string | undefined;
-    dead: boolean;
-    type: "story";
->>>>>>> main
 };
 export type CommentData =
     | {
