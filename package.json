@@ -1,6 +1,6 @@
 {
     "name": "hn-api-ts",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "main": "dist/main.js",
     "types": "dist/main.d.ts",
     "homepage": "https://github.com/yousif-khalil-abdulkarim/hacker-news-api-ts/",

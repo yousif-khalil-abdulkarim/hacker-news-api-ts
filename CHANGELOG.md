@@ -1,5 +1,11 @@
 # hn-api-ts
 
+## 0.7.1
+
+### Patch Changes
+
+- 62f5e74: Fixed a bug
+
 ## 0.7.0
 
 ### Minor Changes
