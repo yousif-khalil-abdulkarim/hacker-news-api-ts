@@ -396,22 +396,6 @@ export class HnApi implements IHnApi {
         private readonly settings: ListSettings,
     ) {}
 
-    private handleCreatedBy(json: ItemJson): CreatedBy {
-        let createdBy: CreatedBy;
-        if (json.by === undefined) {
-            createdBy = {
-                createdBy: undefined,
-                deleted: true,
-            };
-        } else {
-            createdBy = {
-                createdBy: this.userFactory(json.by),
-                deleted: false,
-            };
-        }
-        return createdBy;
-    }
-
     private handleComment = (json: CommentJson): CommentData => {
         if (json.deleted) {
             return {
@@ -570,7 +554,6 @@ export class HnApi implements IHnApi {
             deleted: json.deleted,
             dead: json.dead,
             type: json.type,
-            dead: json.dead,
         };
     };
 

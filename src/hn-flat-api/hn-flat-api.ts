@@ -48,6 +48,7 @@ export class HnFlatApi implements IHnFlatApi {
             await this.cache.set(key, json);
             return itemSchema.parse(json);
         }
+        return value;
     }
 
     async fetchUser(userId: string): Promise<UserJson> {
