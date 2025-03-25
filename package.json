@@ -26,7 +26,7 @@
         "publint": "npm run build && npx publint",
         "check:all": "npm run check && npm run lint && npm run publint",
         "release": "npm run build && npx changeset publish",
-        "generate-types": "npx tsx src/scripts/generate-types.ts"
+        "test": "npx tsx src/scripts/test.ts"
     },
     "devDependencies": {
         "@changesets/cli": "^2.28.1",
@@ -41,7 +41,6 @@
         "eslint-plugin-tsdoc": "^0.4.0",
         "eslint-plugin-typescript-enum": "^2.1.0",
         "publint": "^0.3.9",
-        "quicktype-core": "^23.0.171",
         "rimraf": "^6.0.1",
         "tsc-alias": "^1.8.11",
         "tsx": "^4.19.3",

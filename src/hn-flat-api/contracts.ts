@@ -3,7 +3,29 @@ import { z } from "zod";
 /**
  * @internal
  */
-export const integerSchema = z.number().int();
+export const integerSchema = z
+    .number()
+    .int()
+    .transform((value) => {
+        if (value < 0) {
+            return 0;
+        }
+        return value;
+    });
+
+/**
+ * @internal
+ */
+export const booleanSchema = z
+    .number()
+    .or(z.boolean())
+    .default(false)
+    .transform((value) => {
+        if (typeof value === "boolean") {
+            return value;
+        }
+        return value > 0;
+    });
 
 /**
  * @internal
@@ -13,24 +35,19 @@ export type Integer = z.infer<typeof integerSchema>;
 /**
  * @internal
  */
-export const unixTimestampSchema = z
-    .number()
-    .transform((timeInSeconds) => new Date(timeInSeconds * 1000));
-
-/**
- * @internal
- */
-export const textSchema = z.string().transform((value) => {
-    if (value === "") {
-        return value;
+export const dateSchema = integerSchema.or(z.string()).transform((value) => {
+    if (typeof value === "number") {
+        // is unix timestamp
+        return new Date(value * 1000);
     }
-    return value;
+    // is date string
+    return new Date(value);
 });
 
 /**
  * @internal
  */
-export const integerArraySchema = integerSchema.array().default([]);
+export const integerArraySchema = integerSchema.array();
 
 /**
  * @internal
@@ -40,15 +57,17 @@ export type IntegerArray = z.infer<typeof integerArraySchema>;
 /**
  * @internal
  */
-export const jobItemSchema = z.object({
-    by: z.string(),
+const jobItemSchema = z.object({
+    by: z.string().optional(),
     id: integerSchema,
-    score: integerSchema,
-    text: textSchema.optional(),
-    time: unixTimestampSchema,
-    title: z.string(),
+    score: integerSchema.default(0),
+    text: z.string().optional(),
+    time: dateSchema,
+    title: z.string().optional(),
     type: z.literal("job"),
-    url: textSchema.optional(),
+    deleted: booleanSchema.default(false),
+    dead: booleanSchema.default(false),
+    url: z.string().optional(),
 });
 
 /**
@@ -60,15 +79,18 @@ export type JobJson = z.infer<typeof jobItemSchema>;
  * @internal
  */
 export const storyItemSchema = z.object({
-    by: z.string(),
-    descendants: integerSchema,
+    by: z.string().optional(),
+    descendants: integerSchema.default(0),
     id: integerSchema,
-    kids: integerArraySchema,
-    score: integerSchema,
-    text: textSchema.optional(),
-    time: unixTimestampSchema,
-    title: z.string(),
+    kids: integerArraySchema.default([]),
+    score: integerSchema.default(0),
+    text: z.string().optional(),
+    time: dateSchema,
+    title: z.string().optional(),
     type: z.literal("story"),
+    deleted: booleanSchema.default(false),
+    dead: booleanSchema.default(false),
+    url: z.string().optional(),
 });
 
 /**
@@ -80,13 +102,16 @@ export type StoryJson = z.infer<typeof storyItemSchema>;
  * @internal
  */
 export const commentItemSchema = z.object({
-    by: z.string(),
+    by: z.string().optional(),
     id: integerSchema,
-    kids: integerArraySchema,
+    kids: integerArraySchema.default([]),
     parent: integerSchema,
-    text: textSchema,
-    time: unixTimestampSchema,
+    text: z.string().optional(),
+    time: dateSchema,
     type: z.literal("comment"),
+    deleted: booleanSchema.default(false),
+    dead: booleanSchema.default(false),
+    url: z.string().optional(),
 });
 
 /**
@@ -98,16 +123,19 @@ export type CommentJson = z.infer<typeof commentItemSchema>;
  * @internal
  */
 export const pollItemSchema = z.object({
-    by: z.string(),
-    descendants: integerSchema,
+    by: z.string().optional(),
+    descendants: integerSchema.default(0),
     id: integerSchema,
-    kids: integerArraySchema,
+    kids: integerArraySchema.default([]),
     parts: integerArraySchema,
-    score: integerSchema,
-    text: textSchema.optional(),
-    time: unixTimestampSchema,
-    title: z.string(),
+    score: integerSchema.default(0),
+    text: z.string().optional(),
+    time: dateSchema,
+    title: z.string().optional(),
     type: z.literal("poll"),
+    deleted: booleanSchema.default(false),
+    dead: booleanSchema.default(false),
+    url: z.string().optional(),
 });
 
 /**
@@ -119,13 +147,16 @@ export type PollJson = z.infer<typeof pollItemSchema>;
  * @internal
  */
 export const pollOptionItemSchema = z.object({
-    by: z.string(),
+    by: z.string().optional(),
     id: integerSchema,
     poll: integerSchema,
-    score: integerSchema,
-    text: textSchema.optional(),
-    time: unixTimestampSchema,
+    score: integerSchema.default(0),
+    text: z.string().optional(),
+    time: dateSchema,
     type: z.literal("pollopt"),
+    deleted: booleanSchema.default(false),
+    dead: booleanSchema.default(false),
+    url: z.string().optional(),
 });
 
 /**
@@ -152,7 +183,7 @@ export type ItemJson = z.infer<typeof itemSchema>;
  */
 export const userSchema = z.object({
     id: z.string(),
-    created: unixTimestampSchema,
+    created: dateSchema,
     about: z.string().optional(),
     karma: integerSchema,
     submitted: integerArraySchema,
@@ -205,4 +236,6 @@ export type IHnFlatApi = {
     fetchShowStories(): Promise<IntegerArray>;
 
     fetchChangedItemsAndProfiles(): Promise<ChangedItemsAndProfilesJson>;
+
+    fetchMaxItem(): Promise<Integer>;
 };

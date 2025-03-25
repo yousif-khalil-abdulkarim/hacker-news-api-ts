@@ -6,13 +6,14 @@ import type {
     PollJson,
     PollOptionJson,
     StoryJson,
+    ItemJson,
 } from "@/hn-flat-api/_module.js";
 import type {
     CommentData,
     IList,
     IListElement,
     Item,
-    ItemData,
+    ItemData as TElement,
     Items,
     JobData,
     PollData,
@@ -26,6 +27,7 @@ import type {
     IPaginateData,
     Predicate,
     PredicateWithError,
+    CreatedBy,
 } from "@/hn-api/contracts.js";
 
 /**
@@ -175,24 +177,23 @@ export type ListSettings = {
 /**
  * @internal
  */
-export function paginate<TElement>(
-    items: TElement[],
-    page: number,
-    pageSize: number,
-): TElement[] {
-    if (pageSize < 1) {
-        strict.fail(new TypeError(`Invalid "pageSize", must be larger than 0`));
-    }
-    if (page < 1) {
-        strict.fail(new TypeError(`Invalid "page", must be larger than 0`));
-    }
-    return items.slice((page - 1) * pageSize, page * pageSize);
-}
-
-/**
- * @internal
- */
 export class List<TElement, TId> implements IList<TElement, TId> {
+    private static paginate<TElement>(
+        items: TElement[],
+        page: number,
+        pageSize: number,
+    ): TElement[] {
+        if (pageSize < 1) {
+            strict.fail(
+                new TypeError(`Invalid "pageSize", must be larger than 0`),
+            );
+        }
+        if (page < 1) {
+            strict.fail(new TypeError(`Invalid "page", must be larger than 0`));
+        }
+        return items.slice((page - 1) * pageSize, page * pageSize);
+    }
+
     constructor(
         private readonly fetchIds: () => Promise<TId[]>,
         private readonly itemFactory: (id: TId) => IListElement<TElement, TId>,
@@ -206,7 +207,7 @@ export class List<TElement, TId> implements IList<TElement, TId> {
             pageSize: this.settings.pageSize,
             totalPages: Math.ceil(allIds.length / this.settings.pageSize),
             totalElements: allIds.length,
-            elements: paginate(
+            elements: List.paginate(
                 allIds,
                 this.settings.page,
                 this.settings.pageSize,
@@ -280,6 +281,112 @@ export class List<TElement, TId> implements IList<TElement, TId> {
     }
 }
 
+export class AllItems<TElement> implements IList<TElement, number> {
+    constructor(
+        private readonly fetchMaxItemId: () => Promise<number>,
+        private readonly itemFactory: (
+            id: number,
+        ) => IListElement<TElement, number>,
+        private readonly settings: ListSettings,
+    ) {}
+
+    private static paginate(
+        maxItemId: number,
+        page: number,
+        pageSize: number,
+    ): number[] {
+        const start = maxItemId - (page - 1) * pageSize;
+        const end = maxItemId - page * pageSize;
+
+        const arr: number[] = [];
+        for (let i = start; i >= end; i--) {
+            arr.push(i);
+        }
+        return arr;
+    }
+
+    private fetchPaginatedIds = async (): Promise<IPaginateData<number>> => {
+        const maxItemId = await this.fetchMaxItemId();
+        const paginatedIds = AllItems.paginate(
+            maxItemId,
+            this.settings.page,
+            this.settings.pageSize,
+        );
+        return {
+            page: this.settings.page,
+            pageSize: this.settings.pageSize,
+            totalPages: Math.ceil(maxItemId / this.settings.pageSize),
+            totalElements: maxItemId,
+            elements: paginatedIds,
+        };
+    };
+
+    async fetch(): Promise<IPaginateData<TElement>> {
+        const { elements: ids, ...rest } = await this.fetchPaginatedIds();
+        const elements = await runAsyncIterable(
+            new AsyncBatchIterable(
+                () => Promise.resolve(ids),
+                this.itemFactory,
+                this.settings.maxConcurrency,
+            ),
+        );
+        return {
+            elements: elements.map(({ element }) => element),
+            ...rest,
+        };
+    }
+
+    setPageSize(pageSize: number): IList<TElement, number> {
+        return new AllItems(this.fetchMaxItemId, this.itemFactory, {
+            ...this.settings,
+            pageSize,
+        });
+    }
+
+    setPage(page: number): IList<TElement, number> {
+        return new AllItems(this.fetchMaxItemId, this.itemFactory, {
+            ...this.settings,
+            page,
+        });
+    }
+
+    private fetchOneId = async (index: number): Promise<number | null> => {
+        const { elements: ids } = await this.fetchPaginatedIds();
+        return ids[index] ?? null;
+    };
+
+    getItem(index: number): IListElement<TElement, number | null> {
+        if (index < 0) {
+            throw new RangeError(
+                `"index" is out of range, must be larger than -1`,
+            );
+        }
+        return new ListElement(
+            async () => this.fetchOneId(index),
+            async (id) => {
+                if (id === null) {
+                    throw new RangeError(
+                        `"index" is out of range, must be larger than -1`,
+                    );
+                }
+                return this.itemFactory(id).fetch();
+            },
+        );
+    }
+
+    map<TOutput = TElement>(
+        mapFn: MapFn<TElement, TOutput>,
+    ): IList<TOutput, number> {
+        return new AllItems<TOutput>(
+            this.fetchMaxItemId,
+            (id) => {
+                return this.itemFactory(id).map(mapFn);
+            },
+            this.settings,
+        );
+    }
+}
+
 /**
  * @internal
  */
@@ -289,9 +396,25 @@ export class HnApi implements IHnApi {
         private readonly settings: ListSettings,
     ) {}
 
+    private handleCreatedBy(json: ItemJson): CreatedBy {
+        let createdBy: CreatedBy;
+        if (json.by === undefined) {
+            createdBy = {
+                createdBy: undefined,
+                deleted: true,
+            };
+        } else {
+            createdBy = {
+                createdBy: this.userFactory(json.by),
+                deleted: false,
+            };
+        }
+        return createdBy;
+    }
+
     private handleComment = (json: CommentJson): CommentData => {
         return {
-            createdBy: this.userFactory(json.by),
+            ...this.handleCreatedBy(json),
             id: json.id,
             kids: new List(
                 () => Promise.resolve(json.kids),
@@ -300,27 +423,30 @@ export class HnApi implements IHnApi {
             ),
             parent: this.itemFactory(json.parent),
             text: json.text,
-            createAt: json.time,
+            createdAt: json.time,
+            url: json.url,
+            dead: json.dead,
             type: json.type,
         };
     };
 
     private handleJob = (json: JobJson): JobData => {
         return {
-            createdBy: this.userFactory(json.by),
+            ...this.handleCreatedBy(json),
             id: json.id,
             score: json.score,
             text: json.text,
             createdAt: json.time,
             title: json.title,
             url: json.url,
+            dead: json.dead,
             type: json.type,
         };
     };
 
     private handlePoll = (json: PollJson): PollData => {
         return {
-            createdBy: this.userFactory(json.by),
+            ...this.handleCreatedBy(json),
             totalKids: json.descendants,
             id: json.id,
             kids: new List(
@@ -337,25 +463,29 @@ export class HnApi implements IHnApi {
             text: json.text,
             createdAt: json.time,
             title: json.title,
+            url: json.url,
+            dead: json.dead,
             type: json.type,
         };
     };
 
     private handlePollOption = (json: PollOptionJson): PollOptData => {
         return {
-            createdBy: this.userFactory(json.by),
+            ...this.handleCreatedBy(json),
             id: json.id,
             pollId: this.itemFactory(json.id),
             score: json.score,
             text: json.text,
             createdAt: json.time,
+            url: json.url,
             type: json.type,
+            dead: json.dead,
         };
     };
 
     private handleStory = (json: StoryJson): StoryData => {
         return {
-            createdBy: this.userFactory(json.by),
+            ...this.handleCreatedBy(json),
             totalKids: json.descendants,
             id: json.id,
             kids: new List(
@@ -367,6 +497,8 @@ export class HnApi implements IHnApi {
             text: json.text,
             createdAt: json.time,
             title: json.title,
+            url: json.url,
+            dead: json.dead,
             type: json.type,
         };
     };
@@ -422,15 +554,15 @@ export class HnApi implements IHnApi {
     }
 
     topStories(): Items {
-        return new List<ItemData, number>(
-            () => this.flatApi.fetchTopStories(),
+        return new List<TElement, number>(
+            this.flatApi.fetchTopStories.bind(this),
             this.itemFactory,
             this.settings,
         );
     }
 
     newStories(): Items {
-        return new List<ItemData, number>(
+        return new List<TElement, number>(
             () => this.flatApi.fetchNewStories(),
             this.itemFactory,
             this.settings,
@@ -438,7 +570,7 @@ export class HnApi implements IHnApi {
     }
 
     bestStories(): Items {
-        return new List<ItemData, number>(
+        return new List<TElement, number>(
             () => this.flatApi.fetchBestStories(),
             this.itemFactory,
             this.settings,
@@ -446,7 +578,7 @@ export class HnApi implements IHnApi {
     }
 
     askstories(): Items {
-        return new List<ItemData, number>(
+        return new List<TElement, number>(
             () => this.flatApi.fetchAskstories(),
             this.itemFactory,
             this.settings,
@@ -454,15 +586,23 @@ export class HnApi implements IHnApi {
     }
 
     showStories(): Items {
-        return new List<ItemData, number>(
-            () => this.flatApi.fetchShowStories(),
+        return new List<TElement, number>(
+            this.flatApi.fetchShowStories.bind(this),
+            this.itemFactory,
+            this.settings,
+        );
+    }
+
+    allItems(): Items {
+        return new AllItems(
+            this.flatApi.fetchMaxItem.bind(this),
             this.itemFactory,
             this.settings,
         );
     }
 
     changedItems(): Items {
-        return new List<ItemData, number>(
+        return new List<TElement, number>(
             async () => {
                 const { items } =
                     await this.flatApi.fetchChangedItemsAndProfiles();
