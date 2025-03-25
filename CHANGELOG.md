@@ -1,5 +1,11 @@
 # hn-api-ts
 
+## 0.6.0
+
+### Minor Changes
+
+- bc5a78f: Changed the return data so it reflects the api more accuratley.
+
 ## 0.5.0
 
 ### Minor Changes
