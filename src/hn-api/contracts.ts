@@ -52,55 +52,68 @@ export type IList<TElement, TId> = IFetchable<IPaginateData<TElement>> & {
     ): IList<TOutput, TId>;
 };
 
+export type CreatedBy =
+    | {
+          createdBy: User;
+          deleted: false;
+      }
+    | {
+          createdBy: undefined;
+          deleted: true;
+      };
 export type CommentData = {
-    createdBy: User;
     id: number;
     kids: Items;
     parent: Item;
-    text: string;
-    createAt: Date;
+    text: string | undefined;
+    createdAt: Date;
+    url: string | undefined;
+    dead: boolean;
     type: "comment";
-};
+} & CreatedBy;
 export type JobData = {
-    createdBy: User;
     id: number;
     score: number;
-    text?: string;
+    text: string | undefined;
     createdAt: Date;
-    title: string;
-    url?: string;
+    title: string | undefined;
+    url: string | undefined;
+    dead: boolean;
     type: "job";
-};
+} & CreatedBy;
 export type PollData = {
-    createdBy: User;
     totalKids: number;
     id: number;
     kids: Items;
     parts: Items;
     score: number;
-    text?: string;
+    text: string | undefined;
     createdAt: Date;
-    title: string;
+    title: string | undefined;
+    url: string | undefined;
+    dead: boolean;
     type: "poll";
-};
+} & CreatedBy;
 export type PollOptData = {
-    createdBy: User;
     id: number;
     pollId: Item;
     score: number;
-    text?: string;
+    text: string | undefined;
     createdAt: Date;
+    url: string | undefined;
+    dead: boolean;
     type: "pollopt";
-};
+} & CreatedBy;
 export type StoryData = {
-    createdBy: User;
     totalKids: number;
     id: number;
     kids: Items;
     score: number;
-    text?: string;
+    text: string | undefined;
     createdAt: Date;
-    title: string;
+    title: string | undefined;
+    url: string | undefined;
+    dead: boolean;
     type: "story";
 };
 export type ItemData =
@@ -148,6 +161,8 @@ export type IHnApi = {
     askstories(): Items;
 
     showStories(): Items;
+
+    allItems(): Items;
 
     changedItems(): Items;
 

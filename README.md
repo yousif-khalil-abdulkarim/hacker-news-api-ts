@@ -61,6 +61,8 @@ const showStories = client.showStories();
 
 const changedItems = client.changedItems();
 
+const allItems = client.allItems();
+
 const changedUsers = client.changedUsers();
 ```
 

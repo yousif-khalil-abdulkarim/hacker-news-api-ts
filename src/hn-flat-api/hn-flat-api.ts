@@ -5,12 +5,14 @@ import type {
     ChangedItemsAndProfilesJson,
     IHnFlatApi,
     ICache,
+    Integer,
 } from "@/hn-flat-api/contracts.js";
 import {
     itemSchema,
     userSchema,
     integerArraySchema,
     changedItemsAndProfilesSchema,
+    integerSchema,
 } from "@/hn-flat-api/contracts.js";
 import { strict } from "assert";
 
@@ -37,15 +39,21 @@ export class HnFlatApi implements IHnFlatApi {
     async fetchItem(itemId: number): Promise<ItemJson> {
         const key = `item/${itemId.toString()}`;
         const value = await this.cache.get<ItemJson>(key);
-        if (value === null) {
-            const response = await fetch(
-                `${this.baseUrl}/item/${itemId.toString()}.json`,
-            );
-            const json: unknown = await response.json();
-            await this.cache.set(key, json);
-            return itemSchema.parse(json);
+        let json: unknown;
+        try {
+            if (value === null) {
+                const response = await fetch(
+                    `${this.baseUrl}/item/${itemId.toString()}.json`,
+                );
+                json = await response.json();
+                await this.cache.set(key, json);
+                return itemSchema.parse(json);
+            }
+            return value;
+        } catch (error: unknown) {
+            console.log("error:", json);
+            throw error;
         }
-        return value;
     }
 
     async fetchUser(userId: string): Promise<UserJson> {
@@ -140,5 +148,11 @@ export class HnFlatApi implements IHnFlatApi {
             return data;
         }
         return value;
+    }
+
+    async fetchMaxItem(): Promise<Integer> {
+        const response = await fetch(`${this.baseUrl}/maxitem.json?`);
+        const json: unknown = await response.json();
+        return integerSchema.parse(json);
     }
 }
