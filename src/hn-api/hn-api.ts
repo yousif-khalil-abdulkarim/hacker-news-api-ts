@@ -651,7 +651,7 @@ export class HnApi implements IHnApi {
 
     topStories(): Items {
         return new List<TElement, number>(
-            this.flatApi.fetchTopStories.bind(this),
+            () => this.flatApi.fetchTopStories(),
             this.itemFactory,
             this.settings,
         );
@@ -683,7 +683,7 @@ export class HnApi implements IHnApi {
 
     showStories(): Items {
         return new List<TElement, number>(
-            this.flatApi.fetchShowStories.bind(this),
+            () => this.flatApi.fetchShowStories(),
             this.itemFactory,
             this.settings,
         );
@@ -691,7 +691,7 @@ export class HnApi implements IHnApi {
 
     allItems(): Items {
         return new AllItems(
-            this.flatApi.fetchMaxItem.bind(this),
+            () => this.flatApi.fetchMaxItem(),
             this.itemFactory,
             this.settings,
         );
