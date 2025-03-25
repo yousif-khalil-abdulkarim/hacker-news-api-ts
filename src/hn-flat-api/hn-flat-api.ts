@@ -39,21 +39,16 @@ export class HnFlatApi implements IHnFlatApi {
     async fetchItem(itemId: number): Promise<ItemJson> {
         const key = `item/${itemId.toString()}`;
         const value = await this.cache.get<ItemJson>(key);
-        let json: unknown;
-        try {
-            if (value === null) {
-                const response = await fetch(
-                    `${this.baseUrl}/item/${itemId.toString()}.json`,
-                );
-                json = await response.json();
-                await this.cache.set(key, json);
-                return itemSchema.parse(json);
-            }
-            return value;
-        } catch (error: unknown) {
-            console.log("error:", json);
-            throw error;
+
+        if (value === null) {
+            const response = await fetch(
+                `${this.baseUrl}/item/${itemId.toString()}.json`,
+            );
+            const json: unknown = await response.json();
+            await this.cache.set(key, json);
+            return itemSchema.parse(json);
         }
+        return value;
     }
 
     async fetchUser(userId: string): Promise<UserJson> {
